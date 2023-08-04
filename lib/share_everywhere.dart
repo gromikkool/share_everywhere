@@ -1,142 +1,90 @@
-library share_everywhere;
-
 import 'package:flutter/material.dart';
-import 'package:url_launcher/url_launcher.dart';
+import 'package:share_everywhere/dialog_body.dart';
+import 'package:share_everywhere/url_generator_strategy.dart';
 import 'package:share_plus/share_plus.dart';
 
-class SocialConfig extends Object {
-  /// Create configuration for social network
-  ///
-  /// requires [type] to be facebook, linkedin or twitter
-  ///
-  /// The [icon] is optional to add a custom social network logo
-  SocialConfig({required this.type, this.appId, this.icon});
+class SocialConfig {
+  final String type;
+  final String? appId;
+  final Widget icon;
+  final Widget? newIcon;
+  final UrlGeneratorStrategy urlGenerator;
+  final VoidCallback? afterPressed;
 
-  /// Required by facebook
-  var appId;
+  SocialConfig(
+      {required this.urlGenerator,
+      required this.type,
+      this.appId,
+      required this.icon,
+      this.afterPressed,
+      this.newIcon});
 
-  /// Allowed types are: facebook, linkedin and twitter
-  String type;
+  SocialConfig.facebook({required String appId, required Widget icon})
+      : this(urlGenerator: FacebookUrlGenerator(appId), type: 'facebook', appId: appId, icon: icon);
 
-  Image? icon;
+  SocialConfig.twitter({required Widget icon}) : this(urlGenerator: TwitterUrlGenerator(), type: 'twitter', icon: icon);
 
-  IconButton button(url) {
-    if (this.type == "facebook") {
-      var _url =
-          "https://www.facebook.com/dialog/share?app_id=$appId&display=page&href=$url";
-      return IconButton(
-        icon: icon ??
-            new Image.asset(
-              'icons/facebook.png',
-              package: 'share_everywhere',
-            ),
-        onPressed: () => {_launchURL(_url)},
-      );
-    }
-    if (this.type == "linkedin") {
-      var _url = "https://www.linkedin.com/sharing/share-offsite/?url=$url";
-      return IconButton(
-        icon: icon ??
-            new Image.asset(
-              'icons/linkedin.png',
-              package: 'share_everywhere',
-            ),
-        onPressed: () => {_launchURL(_url)},
-      );
-    }
-    if (this.type == "twitter") {
-      var _url = "https://twitter.com/intent/tweet?text=$url";
-      return IconButton(
-        icon: icon ??
-            new Image.asset(
-              'icons/twitter.png',
-              package: 'share_everywhere',
-            ),
-        onPressed: () => {_launchURL(_url)},
-      );
-    }
+  SocialConfig.linkedin({required Widget icon})
+      : this(urlGenerator: LinkedinUrlGenerator(), type: 'linkedin', icon: icon);
 
-    return IconButton(
-      icon: Icon(Icons.error),
-      onPressed: () => {},
-    );
-  }
-
-  void _launchURL(_url) async => await canLaunchUrl(_url)
-      ? await launchUrl(
-          _url,
-          webOnlyWindowName: "_blank",
-        )
-      : throw 'Could not launch $_url';
+  SocialConfig.copyTo({required Widget icon, Widget? newIcon, VoidCallback? afterPressed})
+      : this(
+            urlGenerator: CopyToClipboardUrlGenerator(),
+            type: 'copyTo',
+            icon: icon,
+            newIcon: newIcon,
+            afterPressed: afterPressed);
 }
 
 class ShareController {
-  List<SocialConfig> networks = [];
-  String? title;
-  Text? elevatedButtonText;
+  final List<SocialConfig> networks;
+  final String? dlgTitle;
+  final Text? elevatedButtonText;
 
-  ShareController(
-      {this.title, required this.networks, this.elevatedButtonText});
+  ShareController({this.dlgTitle, required this.networks, this.elevatedButtonText});
 }
 
-class ShareButton extends StatefulWidget {
+class ShareButton extends StatelessWidget {
   final ShareController controller;
   final String url;
-  ShareButton(this.controller, this.url);
+  final Widget? icon;
 
-  _ShareButtonState createState() => _ShareButtonState(controller, url);
-}
+  ShareButton(this.controller, this.url, {this.icon});
 
-class _ShareButtonState extends State<ShareButton> {
-  ShareController controller;
-  String url;
-
-  var startButton;
-
-  List<IconButton> buttons = [];
-
-  _ShareButtonState(this.controller, this.url) {
-    for (var network in controller.networks) {
-      buttons.add(network.button(url));
-    }
-    if (controller.elevatedButtonText != null) {
-      startButton = ElevatedButton(
-        onPressed: () => {share()},
-        child: controller.elevatedButtonText,
+  void _share(BuildContext context) {
+    if (Theme.of(context).platform == TargetPlatform.android || Theme.of(context).platform == TargetPlatform.iOS) {
+      Share.share(url);
+    } else {
+      print(url);
+      showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return SimpleDialog(
+            title: controller.dlgTitle != null
+                ? Text(
+                    controller.dlgTitle!,
+                    textAlign: TextAlign.center,
+                  )
+                : null,
+            children: [
+              DialogBody(controller, url),
+            ],
+          );
+        },
       );
     }
   }
 
-  void share() {
-    print(Theme.of(context).platform);
-    if (Theme.of(context).platform == TargetPlatform.android ||
-        Theme.of(context).platform == TargetPlatform.iOS) {
-      Share.share(url);
-    } else {
-      print(url);
-
-      showDialog(
-          context: context,
-          builder: (BuildContext context) {
-            return SimpleDialog(
-              title: controller.title != null
-                  ? Text(
-                      controller.title ?? '',
-                      textAlign: TextAlign.center,
-                    )
-                  : null,
-              children: [
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: buttons,
-                ),
-              ],
-            );
-          });
-    }
-  }
-
+  @override
   Widget build(BuildContext context) {
-    return startButton;
+    return controller.elevatedButtonText != null
+        ? IconButton(
+            icon: icon ?? const Icon(Icons.share),
+            onPressed: () => _share(context),
+          )
+        : ElevatedButton(
+            onPressed: () => _share(context),
+            child: Text("Share"),
+          );
   }
 }
