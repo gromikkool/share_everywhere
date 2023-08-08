@@ -40,17 +40,21 @@ class SocialConfig {
 
 class ShareController {
   final List<SocialConfig> networks;
-  final String? dlgTitle;
-  final Widget? btn;
 
-  ShareController({this.dlgTitle, required this.networks, this.btn});
+  ShareController({required this.networks});
 }
 
 class ShareButton extends StatefulWidget {
   final ShareController controller;
   final String url;
+  final Widget? child;
+  final Widget? icon;
 
-  ShareButton(this.controller, this.url);
+  ShareButton(this.controller, this.url, {this.child, this.icon})
+      : assert(
+          !(child != null && icon != null),
+          'You can only pass [child] or [icon], not both.',
+        );
 
   @override
   State<ShareButton> createState() => _ShareButtonState();
@@ -98,10 +102,7 @@ class _ShareButtonState extends State<ShareButton> {
             );
           }).toList();
         },
-        child: widget.controller.btn ??
-            const Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [Icon(Icons.share), Text('Share')],
-            ));
+        icon: (widget.child == null && widget.icon == null) ? const Icon(Icons.share) : null,
+        child: widget.child);
   }
 }

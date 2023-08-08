@@ -29,11 +29,6 @@ class MyHomePage extends StatefulWidget {
 
 class _MyHomePageState extends State<MyHomePage> {
   ShareController shareController = ShareController(
-    dlgTitle: "Share on:",
-    btn: const Row(
-      mainAxisSize: MainAxisSize.min,
-      children: [Icon(Icons.share), Text('Share')],
-    ),
     networks: [
       SocialConfig.copyTo(
         icon: Row(
