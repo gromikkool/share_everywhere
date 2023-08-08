@@ -69,12 +69,12 @@ class _ShareButtonState extends State<ShareButton> {
     currentIcons = widget.controller.networks.map((network) => network.icon).toList();
   }
 
-  void _share(BuildContext context, SocialConfig network) {
+  Future<void> _share(BuildContext context, SocialConfig network) async {
     var _url = network.urlGenerator.generateUrl(widget.url);
     if (Theme.of(context).platform == TargetPlatform.android || Theme.of(context).platform == TargetPlatform.iOS) {
-      Share.share(_url);
+      await Share.share(_url);
     } else {
-      network.urlGenerator.launchURL(_url);
+      await network.urlGenerator.launchURL(_url);
       network.afterPressed?.call();
     }
   }
@@ -90,8 +90,8 @@ class _ShareButtonState extends State<ShareButton> {
               value: network,
               child: StatefulBuilder(builder: (context, setState) {
                 return GestureDetector(
-                    onTap: () {
-                      _share(context, network);
+                    onTap: () async {
+                      await _share(context, network);
                       setState(() {
                         currentIcon = network.newIcon ?? currentIcon;
                         print(currentIcons[index]);
