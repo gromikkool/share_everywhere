@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:share_everywhere/popup_item.dart';
 import 'package:share_everywhere/url_generator_strategy.dart';
-import 'package:share_plus/share_plus.dart';
 
 class SocialConfig {
   final String type;
@@ -74,12 +73,8 @@ class _ShareButtonState extends State<ShareButton> {
 
   Future<void> _share(BuildContext context, SocialConfig network) async {
     var _url = network.urlGenerator.generateUrl(widget.url);
-    if (Theme.of(context).platform == TargetPlatform.android || Theme.of(context).platform == TargetPlatform.iOS) {
-      await Share.share(_url);
-    } else {
-      await network.urlGenerator.launchURL(_url);
-      network.afterPressed?.call();
-    }
+    await network.urlGenerator.launchURL(_url);
+    network.afterPressed?.call();
   }
 
   @override
