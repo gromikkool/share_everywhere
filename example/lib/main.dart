@@ -30,41 +30,23 @@ class MyHomePage extends StatefulWidget {
 class _MyHomePageState extends State<MyHomePage> {
   ShareController shareController = ShareController(
     dlgTitle: "Share on:",
-    elevatedButtonText: Text("Share"),
+    btn: const Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [Icon(Icons.share), Text('Share')],
+    ),
     networks: [
-      SocialConfig.facebook(
-          icon: Image.asset(
-            'icons/facebook.png',
-            package: 'share_everywhere',
-            width: kMinInteractiveDimension / 1.5,
-            height: kMinInteractiveDimension / 1.5,
-          ),
-          appId: "your-facebook-app-id"),
-      SocialConfig.linkedin(
-        icon: Image.asset(
-          'icons/linkedin.png',
-          package: 'share_everywhere',
-          width: kMinInteractiveDimension / 1.5,
-          height: kMinInteractiveDimension / 1.5,
-        ),
-      ),
-      SocialConfig.twitter(
-        icon: Image.asset(
-          'icons/twitter.png',
-          package: 'share_everywhere',
-          width: kMinInteractiveDimension / 1.5,
-          height: kMinInteractiveDimension / 1.5,
-        ),
-      ),
       SocialConfig.copyTo(
+        icon: Row(
+          children: [Icon(Icons.share), Text('Copy Link')],
+        ),
+        newIcon: Row(
+          children: [Icon(Icons.real_estate_agent_rounded), Text('Copied')],
+        ),
+      ),
+      SocialConfig.internal(
         icon: Center(
           child: Row(
-            children: [Icon(Icons.share), Text('Copy Link')],
-          ),
-        ),
-        newIcon: Center(
-          child: Row(
-            children: [Icon(Icons.real_estate_agent_rounded), Text('Copied')],
+            children: [Icon(Icons.share), Text('Share to')],
           ),
         ),
       ),
