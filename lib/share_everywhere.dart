@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:share_everywhere/popup_item.dart';
 import 'package:share_everywhere/url_generator_strategy.dart';
 import 'package:share_plus/share_plus.dart';
 
@@ -63,6 +64,8 @@ class ShareButton extends StatefulWidget {
 class _ShareButtonState extends State<ShareButton> {
   List<Widget> currentIcons = [];
 
+  ValueNotifier<Widget?> iconNotifier = ValueNotifier(null);
+
   @override
   void initState() {
     super.initState();
@@ -85,20 +88,19 @@ class _ShareButtonState extends State<ShareButton> {
         itemBuilder: (BuildContext context) {
           return List.generate(widget.controller.networks.length, (index) {
             final network = widget.controller.networks[index];
-            var currentIcon = currentIcons[index];
-            return PopupMenuItem<SocialConfig>(
+            var currentIcon = ValueNotifier<Widget>(currentIcons[index]);
+            return PopupItem<SocialConfig>(
               value: network,
-              child: StatefulBuilder(builder: (context, setState) {
-                return GestureDetector(
-                    onTap: () async {
-                      await _share(context, network);
-                      setState(() {
-                        currentIcon = network.newIcon ?? currentIcon;
-                        print(currentIcons[index]);
-                      });
-                    },
-                    child: currentIcon);
-              }),
+              onTap: () async {
+                await _share(context, network);
+                currentIcon.value = network.newIcon ?? currentIcon.value;
+              },
+              child: ValueListenableBuilder<Widget>(
+                valueListenable: currentIcon,
+                builder: (BuildContext context, Widget value, Widget? child) {
+                  return value;
+                },
+              ),
             );
           }).toList();
         },
