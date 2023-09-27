@@ -47,10 +47,11 @@ class ShareController {
 class ShareButton extends StatefulWidget {
   final ShareController controller;
   final String url;
+  final String? subject;
   final Widget? child;
   final Widget? icon;
 
-  ShareButton(this.controller, this.url, {this.child, this.icon})
+  ShareButton(this.controller, this.url, {this.subject, this.child, this.icon})
       : assert(
           !(child != null && icon != null),
           'You can only pass [child] or [icon], not both.',
@@ -72,8 +73,7 @@ class _ShareButtonState extends State<ShareButton> {
   }
 
   Future<void> _share(BuildContext context, SocialConfig network) async {
-    var _url = network.urlGenerator.generateUrl(widget.url);
-    await network.urlGenerator.launchURL(_url);
+    await network.urlGenerator.launchURL(widget.url, subject: widget.subject);
     network.afterPressed?.call();
   }
 
