@@ -1,6 +1,6 @@
 name: share_everywhere
 description: Social sharing for all platforms. This plugin is a wrapper for the native share plugin for Android, iOS and Web.
-version: 1.0.1+0
+version: 1.0.2+0
 homepage: https://pub.dev
 publish_to: https://pub.dev
 

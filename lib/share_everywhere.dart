@@ -50,8 +50,9 @@ class ShareButton extends StatefulWidget {
   final String? subject;
   final Widget? child;
   final Widget? icon;
+  final String? tooltip;
 
-  ShareButton(this.controller, this.url, {this.subject, this.child, this.icon})
+  ShareButton(this.controller, this.url, {this.subject, this.child, this.icon, this.tooltip})
       : assert(
           !(child != null && icon != null),
           'You can only pass [child] or [icon], not both.',
@@ -80,26 +81,28 @@ class _ShareButtonState extends State<ShareButton> {
   @override
   Widget build(BuildContext context) {
     return PopupMenuButton(
-        itemBuilder: (BuildContext context) {
-          return List.generate(widget.controller.networks.length, (index) {
-            final network = widget.controller.networks[index];
-            var currentIcon = ValueNotifier<Widget>(currentIcons[index]);
-            return PopupItem<SocialConfig>(
-              value: network,
-              onTap: () async {
-                await _share(context, network);
-                currentIcon.value = network.newIcon ?? currentIcon.value;
+      itemBuilder: (BuildContext context) {
+        return List.generate(widget.controller.networks.length, (index) {
+          final network = widget.controller.networks[index];
+          var currentIcon = ValueNotifier<Widget>(currentIcons[index]);
+          return PopupItem<SocialConfig>(
+            value: network,
+            onTap: () async {
+              await _share(context, network);
+              currentIcon.value = network.newIcon ?? currentIcon.value;
+            },
+            child: ValueListenableBuilder<Widget>(
+              valueListenable: currentIcon,
+              builder: (BuildContext context, Widget value, Widget? child) {
+                return value;
               },
-              child: ValueListenableBuilder<Widget>(
-                valueListenable: currentIcon,
-                builder: (BuildContext context, Widget value, Widget? child) {
-                  return value;
-                },
-              ),
-            );
-          }).toList();
-        },
-        icon: (widget.child == null && widget.icon == null) ? const Icon(Icons.share) : null,
-        child: widget.child);
+            ),
+          );
+        }).toList();
+      },
+      icon: (widget.child == null && widget.icon == null) ? const Icon(Icons.share) : null,
+      child: widget.child,
+      tooltip: widget.tooltip,
+    );
   }
 }
