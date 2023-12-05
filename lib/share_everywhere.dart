@@ -74,8 +74,13 @@ class _ShareButtonState extends State<ShareButton> {
   }
 
   Future<void> _share(BuildContext context, SocialConfig network) async {
-    await network.urlGenerator.launchURL(widget.url, subject: widget.subject);
-    network.afterPressed?.call();
+    try {
+      await network.urlGenerator.launchURL(widget.url, subject: widget.subject);
+      network.afterPressed?.call();
+    } catch (e) {
+      //Ok to continue
+      debugPrint('Something went wrong with share btn: $e');
+    }
   }
 
   @override
