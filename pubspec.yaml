@@ -5,14 +5,13 @@ homepage: https://pub.dev
 publish_to: https://pub.dev
 
 environment:
-  sdk: ">=2.12.0 <3.0.0"
-  flutter: ">=1.17.0"
+  sdk: '>=3.3.1 <4.0.0'
 
 dependencies:
   flutter:
     sdk: flutter
   url_launcher: ^6.2.1
-  share_plus: ^7.2.1
+  share_plus: ^8.0.2
 
 dev_dependencies:
   flutter_test:
